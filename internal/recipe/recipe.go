@@ -7,7 +7,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-const RecipeDir = "recipes/"
+const RecipeDir = "../../data/recipes/"
 
 type Recipe struct {
 	Name string

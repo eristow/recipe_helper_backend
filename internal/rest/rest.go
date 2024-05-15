@@ -3,39 +3,68 @@ package rest
 import (
 	"html/template"
 	"net/http"
+	"regexp"
 
 	"github.com/eristow/recipe_helper_backend/internal/recipe"
 )
 
+const TemplatesDir = "../../templates/"
+
+var templates = template.Must(template.ParseGlob(TemplatesDir + "*.html"))
+var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
+
 func renderTemplate(w http.ResponseWriter, tmpl string, recipe *recipe.Recipe) {
-	t, _ := template.ParseFiles(tmpl + ".html")
-	t.Execute(w, recipe)
+	err := templates.ExecuteTemplate(w, tmpl+".html", recipe)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
-func ViewHandler(w http.ResponseWriter, r *http.Request) {
-	recipeName := r.URL.Path[len("/view/"):]
-	recipeToView, err := recipe.LoadRecipe(recipeName)
+func MakeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		m := validPath.FindStringSubmatch(r.URL.Path)
+		if m == nil {
+			http.NotFound(w, r)
+			return
+		}
+		fn(w, r, m[2]) // The name is the second subexpression.
+	}
+}
+
+func RootHandler(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/view/FrontPage", http.StatusFound)
+}
+
+func ViewHandler(w http.ResponseWriter, r *http.Request, name string) {
+	recipeToView, err := recipe.LoadRecipe(name)
 	if err != nil {
-		http.Redirect(w, r, "/edit/"+recipeName, http.StatusFound)
+		http.Redirect(w, r, "/edit/"+name, http.StatusOK)
 		return
 	}
-	renderTemplate(w, "../../internal/rest/view", recipeToView)
+	renderTemplate(w, TemplatesDir+"view", recipeToView)
 }
 
-func EditHandler(w http.ResponseWriter, r *http.Request) {
-	recipeName := r.URL.Path[len("/edit/"):]
-	recipeToEdit, err := recipe.LoadRecipe(recipeName)
+func EditHandler(w http.ResponseWriter, r *http.Request, name string) {
+	recipeToEdit, err := recipe.LoadRecipe(name)
 	if err != nil {
-		recipeToEdit = &recipe.Recipe{Name: recipeName}
+		recipeToEdit = &recipe.Recipe{Name: name}
 	}
-	renderTemplate(w, "../../internal/rest/edit", recipeToEdit)
+	renderTemplate(w, TemplatesDir+"edit", recipeToEdit)
 }
 
-// TODO: fix this. It saves as an empty file
-func SaveHandler(w http.ResponseWriter, r *http.Request) {
-	recipeName := r.URL.Path[len("/save/"):]
+func SaveHandler(w http.ResponseWriter, r *http.Request, name string) {
+	// err := r.ParseForm()
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
+
 	ingredients := r.FormValue("ingredients")
-	recipeToSave := &recipe.Recipe{Name: recipeName, Ingredients: []byte(ingredients)}
-	recipeToSave.SaveRecipe()
-	http.Redirect(w, r, "/view/"+recipeName, http.StatusFound)
+	recipeToSave := &recipe.Recipe{Name: name, Ingredients: []byte(ingredients)}
+	err := recipeToSave.SaveRecipe()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/view/"+name, http.StatusFound)
 }
