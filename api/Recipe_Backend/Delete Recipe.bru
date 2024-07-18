@@ -1,0 +1,15 @@
+meta {
+  name: Delete Recipe
+  type: http
+  seq: 6
+}
+
+delete {
+  url: http://localhost:8080/recipes/:recipeName
+  body: none
+  auth: none
+}
+
+params:path {
+  recipeName: BananaBread
+}

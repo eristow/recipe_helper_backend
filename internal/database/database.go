@@ -45,3 +45,10 @@ func (ds *Datastore) ListRecipes() (recipes []recipe.Recipe) {
 
 	return
 }
+
+func (ds *Datastore) DeleteRecipe(key string) {
+	ds.RLock()
+	defer ds.RUnlock()
+
+	delete(ds.m, key)
+}

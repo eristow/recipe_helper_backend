@@ -1,0 +1,25 @@
+meta {
+  name: Create Recipe
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/recipes
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "BananaBread",
+    "ingredients": [
+      "banana",
+      "bread"
+    ],
+    "steps": [
+      "Combine ingredients",
+      "Bake in oven"
+    ]
+  }
+}

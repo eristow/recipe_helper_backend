@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Recipe_Backend",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
