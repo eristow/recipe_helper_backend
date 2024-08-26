@@ -32,7 +32,7 @@ func main() {
 		[]string{"Flour", "Eggs", "Milk", "Sugar"},
 		[]string{"Mix ingredients", "Cook on pan"},
 	)
-	ds.AddRecipe("pancakes", pancakeRecipe)
+	ds.AddRecipe(pancakeRecipe.Id.String(), pancakeRecipe)
 	mux.Handle("/", rootH)
 	mux.Handle("/recipes/", recipeH)
 	mux.Handle("/recipes", recipeH)

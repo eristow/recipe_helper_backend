@@ -1,6 +1,7 @@
 package database
 
 import (
+	"sort"
 	"sync"
 
 	"github.com/eristow/recipe_helper_backend/internal/recipe"
@@ -26,7 +27,16 @@ func (ds *Datastore) AddRecipe(key string, r *recipe.Recipe) {
 	ds.m[key] = *r
 }
 
-func (ds *Datastore) GetRecipe(key string) (*recipe.Recipe, bool) {
+func (ds *Datastore) GetRecipeByName(key string) (*recipe.Recipe, bool) {
+	ds.RLock()
+	defer ds.RUnlock()
+
+	recipe, exists := ds.m[key]
+
+	return &recipe, exists
+}
+
+func (ds *Datastore) GetRecipeById(key string) (*recipe.Recipe, bool) {
 	ds.RLock()
 	defer ds.RUnlock()
 
@@ -42,6 +52,10 @@ func (ds *Datastore) ListRecipes() (recipes []recipe.Recipe) {
 	for _, r := range ds.m {
 		recipes = append(recipes, r)
 	}
+
+	sort.Slice(recipes, func(i, j int) bool {
+		return recipes[i].Name < recipes[j].Name
+	})
 
 	return
 }

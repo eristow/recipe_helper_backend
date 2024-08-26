@@ -12,7 +12,7 @@ import (
 
 var (
 	listRecipeRe   = regexp.MustCompile(`^\/recipes\/*$`)
-	getRecipeRe    = regexp.MustCompile(`^\/recipes\/([a-zA-Z0-9]+)\/?$`)
+	getRecipeRe    = regexp.MustCompile(`^\/recipes\/([a-zA-Z0-9\-]+)\/?$`)
 	createRecipeRe = regexp.MustCompile(`^\/recipes\/*$`)
 )
 
@@ -88,13 +88,14 @@ func (h *RecipeHandler) List(w http.ResponseWriter, r *http.Request) {
 
 func (h *RecipeHandler) Get(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get")
-	recipeName := getRecipeNameIdFromUrl(r)
-	if recipeName == "" {
+	recipeId := getRecipeNameIdFromUrl(r)
+	log.Printf("Recipe ID: %s", recipeId)
+	if recipeId == "" {
 		notFound(w, r)
 		return
 	}
 
-	recipe, exists := h.store.GetRecipe(recipeName)
+	recipe, exists := h.store.GetRecipeById(recipeId)
 
 	if !exists {
 		w.WriteHeader(http.StatusNotFound)
@@ -113,7 +114,6 @@ func (h *RecipeHandler) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO: assign ID to new recipe
-// TODO: return error if recipe exists with name
 func (h *RecipeHandler) Create(w http.ResponseWriter, r *http.Request) {
 	log.Println("Create")
 	var newRecipe recipe.Recipe
@@ -122,9 +122,11 @@ func (h *RecipeHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	newRecipe.Id = newRecipe.NewRecipeId()
+
 	log.Printf("Adding new recipe: %+v", newRecipe)
 
-	h.store.AddRecipe(newRecipe.Name, &newRecipe)
+	h.store.AddRecipe(newRecipe.Id.String(), &newRecipe)
 
 	recipeJsonBytes, err := json.Marshal(newRecipe)
 	if err != nil {
@@ -141,16 +143,16 @@ func (h *RecipeHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *RecipeHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	log.Println("Delete")
 
-	recipeName := getRecipeNameIdFromUrl(r)
+	recipeId := getRecipeNameIdFromUrl(r)
 
-	log.Printf("Deleting recipe: %s", recipeName)
+	log.Printf("Deleting recipe: %s", recipeId)
 
-	h.store.DeleteRecipe(recipeName)
+	h.store.DeleteRecipe(recipeId)
 
-	log.Printf("Deleted recipe: %s", recipeName)
+	log.Printf("Deleted recipe: %s", recipeId)
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Deleted recipe: " + recipeName))
+	w.Write([]byte("Deleted recipe: " + recipeId))
 }
 
 func internalServerError(w http.ResponseWriter, _ *http.Request) {

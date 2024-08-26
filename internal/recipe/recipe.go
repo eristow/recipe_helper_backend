@@ -29,6 +29,10 @@ func (r *Recipe) GetNamePretty() string {
 	return caser.String(r.Name)
 }
 
+func (r *Recipe) NewRecipeId() uuid.UUID {
+	return uuid.New()
+}
+
 func (r *Recipe) SetId(id uuid.UUID) {
 	r.Id = id
 }
