@@ -1,0 +1,32 @@
+meta {
+  name: Update Recipe
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8080/recipes/:recipeId
+  body: json
+  auth: none
+}
+
+params:path {
+  recipeId: aa34da75-e6c2-44eb-b3f7-ae49e43af400
+}
+
+body:json {
+  {
+        "id": "aa34da75-e6c2-44eb-b3f7-ae49e43af400",
+      "name": "Pancakes!",
+      "ingredients": [
+        "Flour!",
+        "Eggs",
+        "Milk",
+        "Sugar"
+      ],
+      "steps": [
+        "Mix ingredients!",
+        "Cook on pan"
+      ]
+  }
+}

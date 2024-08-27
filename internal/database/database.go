@@ -27,6 +27,13 @@ func (ds *Datastore) AddRecipe(key string, r *recipe.Recipe) {
 	ds.m[key] = *r
 }
 
+func (ds *Datastore) UpdateRecipe(key string, r *recipe.Recipe) {
+	ds.Lock()
+	defer ds.Unlock()
+
+	ds.m[key] = *r
+}
+
 func (ds *Datastore) GetRecipeByName(key string) (*recipe.Recipe, bool) {
 	ds.RLock()
 	defer ds.RUnlock()

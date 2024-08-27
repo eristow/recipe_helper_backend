@@ -4,24 +4,22 @@ This app is a recipe helper that allows users to add, view, and delete recipes. 
 
 ## TODO:
 
-- [ ] Return all recipes sorted by name
+- [ ] Tests
+  - [ ] Write tests for rest.go
+  - [ ] Write tests for database.go
+  - [ ] Write tests for recipes.go
 
-- [ ] Convert to REST API
-
-  - [ ] Add logging
-  - [ ] Create DELETE endpoint for deleting recipes
-  - [ ] Create PUT endpoint for updating recipes
-  - [ ] Use query strings for filtering by name instead of path parameters
-  - [ ] Tests
-    - [ ] Write tests for rest.go
-    - [ ] Write tests for database.go
-    - [ ] Write tests for recipes.go
-  - [ ] Create swagger docs
+- [ ] Create swagger docs
 
 - [ ] Switch from storing recipes in in-memory to storing them in a database.
-- [ ] Extract HTML into React front-end
-- [ ] Spruce up the page templates by making them valid HTML and adding some CSS rules.
 
+
+## Done:
 - [x] Delete by ID instead of by name
 - [x] Get by ID instead of by name
 - [x] ID should be assigned and not 0000...
+- [x] Return all recipes sorted by name
+- [x] Create DELETE endpoint for deleting recipes
+- [x] Add logging
+- [x] Extract HTML into React front-end
+  - [x] Create PUT endpoint for updating recipes

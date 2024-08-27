@@ -8,6 +8,7 @@ import (
 
 	"github.com/eristow/recipe_helper_backend/internal/database"
 	"github.com/eristow/recipe_helper_backend/internal/recipe"
+	"github.com/google/uuid"
 )
 
 var (
@@ -76,6 +77,9 @@ func (h *RecipeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case r.Method == http.MethodPost && createRecipeRe.MatchString(r.URL.Path):
 		h.Create(w, r)
 		return
+	case r.Method == http.MethodPut && getRecipeRe.MatchString(r.URL.Path):
+		h.Update(w, r)
+		return
 	case r.Method == http.MethodDelete && getRecipeRe.MatchString(r.URL.Path):
 		h.Delete(w, r)
 		return
@@ -126,7 +130,6 @@ func (h *RecipeHandler) Get(w http.ResponseWriter, r *http.Request) {
 	w.Write(recipeJsonBytes)
 }
 
-// TODO: assign ID to new recipe
 func (h *RecipeHandler) Create(w http.ResponseWriter, r *http.Request) {
 	log.Println("Create")
 	var newRecipe recipe.Recipe
@@ -135,7 +138,7 @@ func (h *RecipeHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newRecipe.Id = newRecipe.NewRecipeId()
+	newRecipe.SetId(newRecipe.NewRecipeId())
 
 	log.Printf("Adding new recipe: %+v", newRecipe)
 
@@ -150,6 +153,40 @@ func (h *RecipeHandler) Create(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Added new recipe: %+v", newRecipe)
 
 	w.WriteHeader(http.StatusCreated)
+	w.Write(recipeJsonBytes)
+}
+
+func (h *RecipeHandler) Update(w http.ResponseWriter, r *http.Request) {
+	log.Println("Update")
+
+	recipeId := getRecipeNameIdFromUrl(r)
+
+	var updatedRecipe recipe.Recipe
+	if err := json.NewDecoder(r.Body).Decode(&updatedRecipe); err != nil {
+		internalServerError(w, r)
+		return
+	}
+
+	id, err := uuid.Parse(recipeId)
+	if err != nil {
+		internalServerError(w, r)
+		return
+	}
+	updatedRecipe.SetId(id)
+
+	log.Printf("Updating recipe: %+v", updatedRecipe)
+
+	h.store.UpdateRecipe(recipeId, &updatedRecipe)
+
+	recipeJsonBytes, err := json.Marshal(updatedRecipe)
+	if err != nil {
+		internalServerError(w, r)
+		return
+	}
+
+	log.Printf("Updated recipe: %+v", updatedRecipe)
+
+	w.WriteHeader(http.StatusOK)
 	w.Write(recipeJsonBytes)
 }
 
