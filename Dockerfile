@@ -2,7 +2,7 @@
 FROM golang:1.22.6
 
 # Set the working directory inside the container
-WORKDIR /app
+WORKDIR /backend
 
 # Copy the go.mod and go.sum files to the working directory
 COPY go.mod go.sum ./

@@ -2,6 +2,11 @@
 
 This app is a recipe helper that allows users to add, view, and delete recipes. It is a Go application that uses the `net/http` package to create a web server. The app currently uses an in-memory "database" to store recipes.
 
+## How to run the app
+
+* docker build -t recipe_helper_backend .
+* docker run -p 8080:8080 recipe_helper_backend
+
 ## TODO:
 
 - [ ] Tests
